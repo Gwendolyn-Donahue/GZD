@@ -1,0 +1,65 @@
+---
+title: "R tutorial and notes"
+author: "GD"
+date: "7/20/2023"
+output: html_document
+---
+# Helpful packages
+```{r}
+# General ones to always have
+library(dplyr)
+library(tidyverse)
+
+# Reading in and exporting files
+library(readxl)
+library(openxlsx)
+
+# Data visualization 
+library(ggplot2)
+library(ggpubr)
+
+# Making tables
+library(finalfit)
+library(table1)
+library(flextable)
+
+
+library(purrr)
+library(psych)
+library(gridExtra)
+library(Hmisc)
+library(jtools)
+```
+# Merging datafames
+## Only add in specific columns
+```{r}
+# Merge specific columns of interest based on a column shared by the two DFs
+df_to_update <- df_to_update %>% 
+  left_join(df_with_new_cols %>%
+              select(shared_column, new_col_1, new_col_2),
+            by="shared_column")
+```
+## Cleanly merge many dataframes
+```{r}
+# Create a list variable of the dataframes of interest
+list_df = list(df1,df2,df3,df4)
+
+# Merge DFs
+merged_df <- bind_rows(list_df) %>%
+  # If you want to arrange by two specific columns together, add this line 
+  # (in this example case, we are getting IDs in number, timepoint, and rescan order) (122-T3, 122x-T3, 122-T4, 123-T1, etc.)
+  arrange(Subject_ID_BIDS, Timepoint_BIDS)
+```
+
+# Make visual changes to dataframes
+## Relocate a column
+```{r}
+df <- df %>% 
+  relocate(column_youre_moving, .after = column_you_want_on_the_left)
+```
+## Remove columns you don't want
+```{r}
+df <- df %>%
+  select(-(c('column_1','column_2')))
+```
+
