@@ -22,11 +22,10 @@ library(ggpubr)
 library(finalfit)
 library(table1)
 library(flextable)
-
-
-library(purrr)
-library(psych)
 library(gridExtra)
+
+# Other helpful packages
+library(psych)
 library(Hmisc)
 library(jtools)
 ```
@@ -50,6 +49,14 @@ merged_df <- bind_rows(list_df) %>%
   # (in this example case, we are getting IDs in number, timepoint, and rescan order) (122-T3, 122x-T3, 122-T4, 123-T1, etc.)
   arrange(Subject_ID_BIDS, Timepoint_BIDS)
 ```
+# DF manipulation
+## Subsetting
+```{r}
+# Create subsets of males at T2
+subset_df <- original_df %>% 
+  filter(Sex == 1,
+         Timepoint == "T2")
+```
 
 # Make visual changes to dataframes
 ## Relocate a column
@@ -59,7 +66,50 @@ df <- df %>%
 ```
 ## Remove columns you don't want
 ```{r}
-df <- df %>%
+df2 <- df1 %>%
   select(-(c('column_1','column_2')))
+
+# If you want to check the columns this removed
+## To get the columns in 'df1' that are not present in 'df2':
+columns_only_in_df1 <- setdiff(names(df1), names(df2))
+## To get the columns in 'df2' that are not present in 'df1':
+columns_only_in_df2 <- setdiff(names(df2), names(df1))
+## Print the results
+print(columns_only_in_df1)
+print(columns_only_in_df2)
+
+```
+## Rename columns
+```{r}
+df <- df %>% 
+  rename(new = old)
 ```
 
+# Sanity checks
+## Check what rows are in one df but not the other
+```{r}
+rows_not_in_cleaned <- anti_join(df_original, df_new)
+```
+## Check what columns are in one df but not the other
+```{r}
+columns_only_in_df1 <- setdiff(names(df1), names(df2))
+# Or, see what columns are present in both df1 and df2 
+common_columns <- intersect(colnames(df1), colnames(df2))
+```
+# Console tips
+- rm(df): removes only specific elements from your environment
+- describe(df): gives statistical info about df
+- summary(df): gives statistical info about each column in df
+- glimpse(df): gives column names and cell types, lets you preview the first few rows
+- colnames(df): lists the column names in df
+
+# Statistics
+## Correlation coefficients
+```{r}
+cor.test()
+# --> base R test to calculate the Pearson correlation coefficient between two numeric vectors
+# --> returns correlation coefficient, p-value, and (optionally) confidence intervals 
+corr.test()
+# --> psych package test to calculate correlation coefficients for multiple variables 
+# --> can take in data frame or matrix, etc.
+```
