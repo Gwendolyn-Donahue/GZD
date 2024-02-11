@@ -29,33 +29,40 @@ library(psych)
 library(Hmisc)
 library(jtools)
 ```
-# Merging datafames
-## Only add in specific columns
-```{r}
-# Merge specific columns of interest based on a column shared by the two DFs
-df_to_update <- df_to_update %>% 
-  left_join(df_with_new_cols %>%
-              select(shared_column, new_col_1, new_col_2),
-            by="shared_column")
-```
-## Cleanly merge many dataframes
-```{r}
-# Create a list variable of the dataframes of interest
-list_df = list(df1,df2,df3,df4)
+# Mac shortcuts
+    - commmand option i: inserts a chunk
+    - command shift m: inserts a pipe
+# Console tips
+** visual alterations **
+    - rm(df): removes only specific elements from your environment
+** understanding your df as a whole **
+    - describe(df): gives statistical info about df
+    - summary(df): gives statistical info about each column in df
+    - glimpse(df): gives col names, data class types, previewsfirst few rows
+    - colnames(df): lists the column names in df
+** understanding specifics **
+    - typeof(): determines the type or storage mode of any object 
+    - class(): determines what class attribute the object inherited
+    - length(): determines length of an R object
 
-# Merge DFs
-merged_df <- bind_rows(list_df) %>%
-  # If you want to arrange by two specific columns together, add this line 
-  # (in this example case, we are getting IDs in number, timepoint, and rescan order) (122-T3, 122x-T3, 122-T4, 123-T1, etc.)
-  arrange(Subject_ID_BIDS, Timepoint_BIDS)
+# Random R tips
+## Clean the environment
+```{r clean}
+rm(list=ls(all=TRUE)) 
 ```
-# DF manipulation
-## Subsetting
+## Console tips
+    ?function() gives you information on how to use that function
+
+# Reading in data
 ```{r}
-# Create subsets of males at T2
-subset_df <- original_df %>% 
-  filter(Sex == 1,
-         Timepoint == "T2")
+read_excel()
+read.csv()
+
+# can use pattern to read in files ending in same pattern in same folder
+data_pathnames <- list.files(
+  path = "dir path",
+  pattern = "*.csv", full.names = TRUE)
+
 ```
 
 # Make visual changes to dataframes
@@ -85,7 +92,86 @@ df <- df %>%
   rename(new = old)
 ```
 
-# Sanity checks
+# Data wrangling
+```{r}
+count()
+# Shows the counts of all the distinct values in a column
+# Can do grouped counts by putting two variables in the columns 
+
+select() 
+# Allows you to select a subset of the columns in the data frame 
+# Put a ‘-’ before the variable to remove that variable from the df
+# Example: select(column_name_1, column_name_2)
+# If you have a lot of variables you are selecting for, use c() to ‘count’ -- this is a cleaner way to list a lot of different variables (*note: the order you put them in is the order these variables will appear in the new df*)
+
+Indexing
+# Instead of using select(), can use hard brackets directly to ‘index’ through dataframe: df[#,#]
+# The first index refers to the row, the second to the column
+
+slice()
+# Selects out rows based on their row number
+
+filter()
+# Lets you apply logical (and other) operators to subset the data and select rows based off specific values
+# Ex: filter(Gender == "Female")
+
+```
+## Altering variables
+```{r}
+# Add new variables but preserve existing ones
+mutate()
+
+# Add new variables but drop existing ones
+transmute()
+
+# Replace certain text
+str_replace(variable)
+# to replace everything coming before a pattern you want to keep the same
+# //(x-T4)”
+
+```
+
+## Subsetting dfs
+```{r}
+# Create subsets of males at T2
+subset_df <- original_df %>%
+  filter(Sex == 1,
+         Timepoint == "T2")
+```
+## Easily viewing DFs
+```{r}
+sample_n(df, 3) #insert number of rows you want to preview 
+```
+
+# Merging datafames
+## Merge full dfs
+```{r}
+left_join()
+full_join()
+r_bind()
+c_bind()
+```
+
+## Add in specific columns
+```{r}
+# Merge specific columns of interest based on a column shared by the two DFs
+df_to_update <- df_to_update %>% 
+  left_join(df_with_new_cols %>%
+              select(shared_column, new_col_1, new_col_2),
+            by="shared_column")
+```
+## Cleanly merge many dataframes
+```{r}
+# Create a list variable of the dataframes of interest
+list_df = list(df1,df2,df3,df4)
+
+# Merge DFs
+merged_df <- bind_rows(list_df) %>%
+  # If you want to arrange by two specific columns together, add this line 
+  # (in this example case, we are getting IDs in number, timepoint, and rescan order) (122-T3, 122x-T3, 122-T4, 123-T1, etc.)
+  arrange(Subject_ID_BIDS, Timepoint_BIDS)
+```
+# DF sanity checks
 ## Check what rows are in one df but not the other
 ```{r}
 rows_not_in_cleaned <- anti_join(df_original, df_new)
@@ -96,13 +182,6 @@ columns_only_in_df1 <- setdiff(names(df1), names(df2))
 # Or, see what columns are present in both df1 and df2 
 common_columns <- intersect(colnames(df1), colnames(df2))
 ```
-# Console tips
-- rm(df): removes only specific elements from your environment
-- describe(df): gives statistical info about df
-- summary(df): gives statistical info about each column in df
-- glimpse(df): gives column names and cell types, lets you preview the first few rows
-- colnames(df): lists the column names in df
-
 # Statistics
 ## Correlation coefficients
 ```{r}
@@ -113,3 +192,22 @@ corr.test()
 # --> psych package test to calculate correlation coefficients for multiple variables 
 # --> can take in data frame or matrix, etc.
 ```
+# Write out DF
+```{r}
+write.csv(df_variable,
+          "/path.csv",
+          row.names = FALSE)
+```
+
+# Formatting a PDF using Rmd
+## Equations
+```{r}
+# Use $ for latex equations -- examples below:
+```
+$$
+2 = {\lambda}^x
+$$
+$$
+\log 2 = \log {\lambda}^x = x \cdot \log{\lambda}
+$$
+
